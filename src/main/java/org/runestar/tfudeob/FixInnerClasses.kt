@@ -39,14 +39,14 @@ object FixInnerClasses : Transformer {
                 val outer = className.substringBeforeLast('$')
                 val simpleRaw = className.substringAfterLast('$')
                 val simple = if (simpleRaw.toIntOrNull() == null) simpleRaw else null
-                klass.innerClasses.add(InnerClassNode(className, outer, simple, access))
+                //klass.innerClasses.add(InnerClassNode(className, outer, simple, access))
             }
 
-            if (!klass.name.contains('$')) {
+//            if (!klass.name.contains('$')) {
                 klass.outerClass = null
                 klass.outerMethod = null
                 klass.outerMethodDesc = null
-            }
+//            }
         }
         return klasses
     }
