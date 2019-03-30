@@ -53,7 +53,7 @@
         <dependency>
             <groupId>org.bitbucket.mstrobel</groupId>
             <artifactId>procyon-compilertools</artifactId>
-            <version>0.5.33</version>
+            <version>0.5.34</version>
         </dependency>
         <dependency>
             <groupId>org.jboss.windup.decompiler</groupId>
@@ -63,7 +63,7 @@
         <dependency>
             <groupId>org.benf</groupId>
             <artifactId>cfr</artifactId>
-            <version>0.140</version>
+            <version>0.141</version>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
