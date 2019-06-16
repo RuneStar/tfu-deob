@@ -56,9 +56,10 @@
             <version>0.5.35</version>
         </dependency>
         <dependency>
-            <groupId>org.jboss.windup.decompiler</groupId>
-            <artifactId>decompiler-fernflower</artifactId>
-            <version>4.2.1.Final</version>
+            <groupId>fernflower</groupId>
+            <artifactId>fernflower</artifactId>
+            <scope>system</scope>
+            <systemPath>${basedir}/java-decompiler.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>org.benf</groupId>
