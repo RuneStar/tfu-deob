@@ -18,6 +18,9 @@ class FixEnums : Transformer, Remapper() {
                 if (f.access and Opcodes.ACC_SYNTHETIC != 0) elementNames["${k.name}.${f.name}"] = "\$VALUES"
             }
             k.signature = "Ljava/lang/Enum<L${k.name};>;"
+            for (n in k.interfaces) {
+                k.signature += "L$n;"
+            }
         }
         return klasses.map { k ->
             val c = ClassNode()
