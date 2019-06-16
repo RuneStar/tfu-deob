@@ -4,6 +4,8 @@ import com.strobel.decompiler.Decompiler
 import com.strobel.decompiler.DecompilerSettings
 import com.strobel.decompiler.PlainTextOutput
 import org.benf.cfr.reader.Main
+import org.jd.core.v1.ClassFileToJavaSourceDecompiler
+import org.jd.core.v1.api.loader.Loader
 import org.jetbrains.java.decompiler.main.decompiler.ConsoleDecompiler
 import org.objectweb.asm.ClassReader
 import org.objectweb.asm.ClassWriter
@@ -23,6 +25,7 @@ private fun deob(src: Path) {
     val tempOutDir = Paths.get("temp-out")
     val outputCfr = src.resolveSibling("$srcSimple-cfr")
     val outputFernflower = src.resolveSibling("$srcSimple-fernflower")
+    val outputJd = src.resolveSibling("$srcSimple-jd")
     val outputProcyon = src.resolveSibling("$srcSimple-procyon")
     val outputJar = src.resolveSibling("out-" + src.fileName.toString())
 
@@ -30,6 +33,7 @@ private fun deob(src: Path) {
     tempOutDir.toFile().deleteRecursively()
     outputCfr.toFile().deleteRecursively()
     outputFernflower.toFile().deleteRecursively()
+    outputJd.toFile().deleteRecursively()
     outputProcyon.toFile().deleteRecursively()
     Files.deleteIfExists(outputJar)
 
@@ -37,6 +41,7 @@ private fun deob(src: Path) {
     Files.createDirectories(tempOutDir)
     Files.createDirectories(outputCfr)
     Files.createDirectories(outputFernflower)
+    Files.createDirectories(outputJd)
     Files.createDirectories(outputProcyon)
 
     ZipUtil.unpack(src.toFile(), tempInDir.toFile())
@@ -57,6 +62,7 @@ private fun deob(src: Path) {
 
     decompileCfr(outputJar, outputCfr)
     decompileFernflower(tempOutDir, outputFernflower)
+    decompileJd(tempOutDir, outputJd)
     decompileProcyon(tempOutDir, outputProcyon)
 }
 
@@ -72,6 +78,28 @@ private fun decompileFernflower(input: Path, output: Path) {
         input.toString(),
         output.toString()
     ))
+}
+
+private fun decompileJd(input: Path, output: Path) {
+    val loader = object : Loader {
+        override fun canLoad(p0: String): Boolean = Files.exists(input.resolve("$p0.class"))
+        override fun load(p0: String): ByteArray = Files.readAllBytes(input.resolve("$p0.class"))
+    }
+    Files.walk(input).forEach { f ->
+        if (Files.isDirectory(f)) return@forEach
+        val classSimpleName = f.fileName.toString().substringBeforeLast('.')
+        val outFile = output.resolve(input.relativize(f)).resolveSibling("$classSimpleName.java")
+        Files.createDirectories(outFile.parent)
+        val printer = JdPrinter()
+        val decompiler = ClassFileToJavaSourceDecompiler()
+        println(f)
+        try {
+            decompiler.decompile(loader, printer, input.relativize(f).toString().substringBeforeLast('.'))
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        Files.write(outFile, printer.toString().toByteArray())
+    }
 }
 
 private fun decompileProcyon(input: Path, output: Path) {
