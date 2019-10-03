@@ -1,15 +1,21 @@
 package org.runestar.tfudeob
 
 import org.objectweb.asm.Opcodes
-import org.objectweb.asm.commons.ClassRemapper
 import org.objectweb.asm.commons.Remapper
 import org.objectweb.asm.tree.*
 
-class FixEnums : Transformer, Remapper() {
+class FixEnums : Transformer.Tree() {
 
     private val elementNames = HashMap<String, String>()
 
-    override fun transform(klasses: Collection<ClassNode>): Collection<ClassNode> {
+    inner class Remap : Remapper() {
+
+        override fun mapFieldName(owner: String, name: String, descriptor: String): String {
+            return elementNames["$owner.$name"] ?: name
+        }
+    }
+
+    override fun transform(klasses: List<ClassNode>): List<ClassNode> {
         klasses.forEach { k ->
             if (k.access and Opcodes.ACC_ENUM == 0) return@forEach
             val clinit = k.methods.firstOrNull { it.name == "<clinit>" } ?: return@forEach
@@ -22,15 +28,8 @@ class FixEnums : Transformer, Remapper() {
                 k.signature += "L$n;"
             }
         }
-        return klasses.map { k ->
-            val c = ClassNode()
-            k.accept(ClassRemapper(c, this))
-            c
-        }
-    }
-
-    override fun mapFieldName(owner: String, name: String, descriptor: String): String {
-        return elementNames["$owner.$name"] ?: name
+        val remapper = Remap()
+        return klasses.map { remap(it, remapper) }
     }
 
     private fun enumNames(k: ClassNode, clinit: MethodNode) {

@@ -7,7 +7,7 @@ import org.objectweb.asm.tree.LineNumberNode
 import org.objectweb.asm.tree.MethodNode
 import java.lang.reflect.Modifier
 
-object SortMembers : Transformer.Single {
+object SortMembers : Transformer.Single() {
 
     override fun transform(klass: ClassNode): ClassNode {
         klass.fields = klass.fields.sortedWith(FIELD_COMPARATOR)

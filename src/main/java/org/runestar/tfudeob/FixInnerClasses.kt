@@ -3,9 +3,9 @@ package org.runestar.tfudeob
 import org.objectweb.asm.Type
 import org.objectweb.asm.tree.*
 
-object FixInnerClasses : Transformer {
+object FixInnerClasses : Transformer.Tree() {
 
-    override fun transform(klasses: Collection<ClassNode>): Collection<ClassNode> {
+    override fun transform(klasses: List<ClassNode>): List<ClassNode> {
         val classAccess = klasses.associate { it.name to it.access }
         for (klass in klasses) {
             val types = HashSet<Type>()

@@ -6,11 +6,10 @@ import org.objectweb.asm.Type
 import org.objectweb.asm.tree.ClassNode
 import org.objectweb.asm.tree.MethodInsnNode
 import org.objectweb.asm.tree.MethodNode
-import java.util.*
 
-object UnusedMethodRemover : Transformer {
+object UnusedMethodRemover : Transformer.Tree() {
 
-    override fun transform(klasses: Collection<ClassNode>): Collection<ClassNode> {
+    override fun transform(klasses: List<ClassNode>): List<ClassNode> {
         val classNodeNames = klasses.associate { it.name to it }
 
         val supers = MultimapBuilder.hashKeys().arrayListValues().build<ClassNode, String>()
