@@ -14,11 +14,8 @@ fun main() {
 private fun deob(input: Path, output: Path) {
     output.toFile().deleteRecursively()
     val jar = input.resolve("tfu.jar")
-    val tempin = output.resolve("temp-in")
-    val tempout = output.resolve("temp-out")
     val outjar = output.resolve("tfu.jar")
-    Files.createDirectories(tempin)
-    Files.createDirectories(tempout)
+    Files.createDirectories(output)
 
     val transformer = Transformer.Composite(
         RemoveLibraries,
@@ -31,9 +28,9 @@ private fun deob(input: Path, output: Path) {
         FixEnums(),
         SrcCompatRenamer()
     )
-    ZipUtil.unpack(jar.toFile(), tempin.toFile())
-    writeClasses(transformer.transform0(readClasses(tempin)), tempout)
-    ZipUtil.pack(tempout.toFile(), outjar.toFile())
+    writeClasses(transformer.transform0(readClasses(jar)), outjar)
+    val classesDir = output.resolve("classes")
+    ZipUtil.unpack(outjar.toFile(), classesDir.toFile())
 
     val cfrDir = output.resolve("cfr")
     Files.createDirectories(cfrDir)
@@ -41,7 +38,7 @@ private fun deob(input: Path, output: Path) {
 
     val fernflowerDir = output.resolve("fernflower")
     Files.createDirectories(fernflowerDir)
-    decompileFernflower(tempout, fernflowerDir)
+    decompileFernflower(classesDir, fernflowerDir)
 
     val procyonDir = output.resolve("procyon")
     Files.createDirectories(procyonDir)
